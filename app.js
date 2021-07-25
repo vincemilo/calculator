@@ -41,6 +41,9 @@ const createButton = (button) => {
     } else if (button == '.'){
         div.classList = 'dot';
         div.addEventListener('click', dot);
+    } else if (button == 'del'){
+        div.classList = 'del';
+        div.addEventListener('click', del);
     } else {
         div.classList = 'operators';
         div.addEventListener('click', operators);
@@ -49,23 +52,50 @@ const createButton = (button) => {
     buttonContainer.appendChild(div);
 };
 
-const buttons = ['clr', '+', '-', '*', '/', '=', '.'];
-
-for (let i=0; i<10; i++){
-    buttons.push(i);
-};
+const buttons = ['clr', 'del', 7, 8, 9, '/', 4, 5, 6, '*', 1, 2, 3, '-', '.', 0, '=', '+',];
 
 buttons.forEach(createButton);
 
 const numSel = document.querySelectorAll('.numbers');
+const opSel = document.querySelectorAll('.operators');
+
+function del(){
+    if(!currentVal){
+        if(value && value[1]){
+        display.textContent = value.slice(0, -1);
+        value = value.slice(0, -1);
+        } else {
+            display.textContent = 0;
+            value = 0;
+        }
+    } else {
+        if (value2 && value2[1]){
+            display.textContent = value2.slice(0, -1);
+            value2 = value2.slice(0, -1);
+        } else {
+            display.textContent = 0;
+            value2 = 0;
+        }
+    }
+}
 
 function evaluate(){
-    if(operator){
+    if(value2 && value2 !== '0.'){
     value = operate(operator, value*1, value2*1);
     value = Math.round(value * 1000)/1000
     display.textContent = value;
     value2 = 0;
-    currentVal = 0;
+    } else if (value2 == 0){
+        console.log(value)
+        console.log(value2)
+        value = operate(operator, value*1, value2*1);
+        value = Math.round(value * 1000)/1000
+        display.textContent = value;
+        
+        console.log(operator)
+        console.log(value)
+        console.log(value2)
+        value2 = 0;
     }
 }
 
@@ -79,9 +109,14 @@ function keys(e) {
     } else if (e.key === '.'){
         dot();
     } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/'){
+        e.preventDefault();
         operators(e.key);
     } else if (e.key === '=' || e.key === 'Enter'){
         evaluate();
+    } else if (e.key === 'Backspace' || e.key === 'Delete'){
+        del();
+    } else if (e.key === 'Escape'){
+        clear();
     }
 };
 
@@ -91,12 +126,9 @@ function dot(){
         if (!value || value == '0.'){
             value = '0.';
             display.textContent = '0.';
-            console.log('!currentVal')
         } else if (value*1 % 1 == 0) {
-            console.log(value)
             value += '.';
             display.textContent += '.';
-            console.log('!currentVal .')
         } else {
             currentVal = 1;
             dot();
@@ -109,45 +141,45 @@ function dot(){
         } else if (value2*1 % 1 == 0) {
             value2 += '.';
             display.textContent += '.';
-            console.log('currentVal .')
         } else { 
             console.log('currentVal')
-            console.log(value)
-            console.log(value2)
         }
     } else {
         console.log('?')
-        console.log(value)
-        console.log(value2)
     }
 };
 
 function operators(e){
     //take first value
-    if (!currentVal && !value2){
-        if (e === '+' || e === '-' || e === '*' || e === '/'){
-            operator = e;
-        } else {
-            operator = e.target.id;
-        }
+    if (!currentVal && value && !value2){
+        operatorCheck(e);
+        evaluate();
         numSel.forEach(elem => elem.removeEventListener('click', firstVal));
         numSel.forEach(elem => elem.addEventListener('click', nextVal));
         currentVal = 1;
-        console.log('OP case1')
+        console.log('op1')
     //take next value
-    } else if (operator && value2 !== '0.'){
-        operate();
-        if (e === '+' || e === '-' || e === '*' || e === '/'){
-            operator = e;
-        } else {
-            operator = e.target.id;
-        }
-        console.log('OP case2')
+    } else if (operator && value2 && value2 !== '0.'){
+        operatorCheck(e);
+        evaluate();
+        console.log('op2')
     } else {
-        console.log('OP case3')
-        console.log(value)
-        console.log(value2)
+        console.log('op3')
+        return;
     }
+};
+
+function operatorCheck(e){
+    if (e === '+' || e === '-' || e === '*' || e === '/'){
+        operator = e;
+    } else {
+        operator = e.target.id;
+    }
+    // opSel.forEach(elem => {
+    //     if(elem.id == operator){
+    //         console.log(elem.classList.toggle('active'));
+    // }
+    // })
 };
 
 function clear(){
@@ -160,7 +192,7 @@ function clear(){
 }; 
 
 function firstVal(e){
-    if (e*1){
+    if (e*1+1){
         val1 = e;
     } else {
         val1 = e.target.id;
@@ -175,7 +207,7 @@ function firstVal(e){
 };
 
 function nextVal(e){
-    if (e*1){
+    if (e*1+1){
         val2 = e;
     } else {
         val2 = e.target.id;
