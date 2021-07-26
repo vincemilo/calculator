@@ -1,31 +1,38 @@
+//operate functions
 const add = (a, b) => a+b;
 const sub = (a, b) => a-b;
 const mult = (a, b) => a*b;
 const div = (a, b) => a/b;
 
+//initial values
 let value = 0;
-let value2 = 0;
+let value2 = '';
 let operator = null;
 let currentVal = 0;
 
-const operate = (operator, a, b) => operator == '+' ? add(a, b) 
-                                : operator == '-' ? sub(a, b)
-                                : operator == '*' ? mult(a, b)
-                                : operator == '/' && b != 0 ? div(a, b)
+//operate function
+const operate = (op, a, b) => op == '+' ? add(a, b) 
+                                : op == '-' ? sub(a, b)
+                                : op == '*' ? mult(a, b)
+                                : op == '/' && b != 0 ? div(a, b)
                                 : 'Error';
 
+//creates main container                                
 const container = document.querySelector('#container');
 window.addEventListener('keydown', keys);
 
+//creates display
 const display = document.createElement('div');
 display.id = 'display';
 display.textContent = value;
 container.appendChild(display);
 
+//creates button grid
 const buttonContainer = document.createElement('div');
 buttonContainer.id = 'buttonContainer';
 container.appendChild(buttonContainer);
 
+//creates buttons and adds functions
 const createButton = (button) => {
     let div = document.createElement('div');
     div.id = button;
@@ -52,13 +59,17 @@ const createButton = (button) => {
     buttonContainer.appendChild(div);
 };
 
+//button values
 const buttons = ['clr', 'del', 7, 8, 9, '/', 4, 5, 6, '*', 1, 2, 3, '-', '.', 0, '=', '+',];
 
+//create buttons
 buttons.forEach(createButton);
 
+//button selectors
 const numSel = document.querySelectorAll('.numbers');
 const opSel = document.querySelectorAll('.operators');
 
+//delete function
 function del(){
     if(!currentVal){
         if(value && value[1]){
@@ -74,31 +85,35 @@ function del(){
             value2 = value2.slice(0, -1);
         } else {
             display.textContent = 0;
-            value2 = 0;
+            value2 = '';
         }
     }
 }
 
+//evaluate function
 function evaluate(){
-    if(value2 && value2 !== '0.'){
-    value = operate(operator, value*1, value2*1);
-    value = Math.round(value * 1000)/1000
-    display.textContent = value;
-    value2 = 0;
-    } else if (value2 == 0){
-        console.log(value)
-        console.log(value2)
+    if(operator && value2*1){
         value = operate(operator, value*1, value2*1);
         value = Math.round(value * 1000)/1000
         display.textContent = value;
-        
-        console.log(operator)
-        console.log(value)
-        console.log(value2)
-        value2 = 0;
+        value2 = '';
+    } else if (operator && value2 === 0){
+        value = operate(operator, value*1, value2*1);
+        if (value == 'Error'){
+            alert("Can't divide by zero!");
+            clear();
+        } else {
+            value = operate(operator, value*1, value2*1);
+            value = Math.round(value * 1000)/1000
+            display.textContent = value;
+            value2 = '';
+        }
+    } else {
+        console.log('test3')
     }
-}
+};
 
+//checks for keypress
 function keys(e) {
     if (e.key >= 0 && e.key <=9){
         if (!currentVal){
@@ -151,24 +166,19 @@ function dot(){
 
 function operators(e){
     //take first value
-    if (!currentVal && value && !value2){
+    if (!currentVal && !value2){
         operatorCheck(e);
-        evaluate();
         numSel.forEach(elem => elem.removeEventListener('click', firstVal));
         numSel.forEach(elem => elem.addEventListener('click', nextVal));
         currentVal = 1;
-        console.log('op1')
     //take next value
-    } else if (operator && value2 && value2 !== '0.'){
+    } else {
         operatorCheck(e);
         evaluate();
-        console.log('op2')
-    } else {
-        console.log('op3')
-        return;
     }
 };
 
+//check if keypress or click
 function operatorCheck(e){
     if (e === '+' || e === '-' || e === '*' || e === '/'){
         operator = e;
@@ -182,15 +192,18 @@ function operatorCheck(e){
     // })
 };
 
+//clear function
 function clear(){
     display.textContent = 0;
     value = 0;
-    value2 = 0;
+    value2 = '';
     currentVal = 0;
+    operator = null;
     numSel.forEach(elem => elem.addEventListener('click', firstVal));
     numSel.forEach(elem => elem.removeEventListener('click', nextVal));
 }; 
 
+//checks for keypress vs click then returns val
 function firstVal(e){
     if (e*1+1){
         val1 = e;
@@ -206,6 +219,7 @@ function firstVal(e){
     }
 };
 
+//nextval function
 function nextVal(e){
     if (e*1+1){
         val2 = e;
@@ -213,7 +227,7 @@ function nextVal(e){
         val2 = e.target.id;
     }
     if(!value2){
-        value2 = val2;
+        value2 = val2*1;
         display.textContent = val2;
     } else {
         display.textContent += val2;
