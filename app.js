@@ -93,10 +93,14 @@ function del(){
 //evaluate function
 function evaluate(){
     if(operator && value2*1){
+        console.log(value)
+        console.log(value2)
         value = operate(operator, value*1, value2*1);
         value = Math.round(value * 1000)/1000
         display.textContent = value;
         value2 = '';
+        operator = null;
+        console.log('test1')
     } else if (operator && value2 === 0){
         value = operate(operator, value*1, value2*1);
         if (value == 'Error'){
@@ -107,9 +111,15 @@ function evaluate(){
             value = Math.round(value * 1000)/1000
             display.textContent = value;
             value2 = '';
-        }
+            operator = null;
+            console.log('test2')
+        } 
     } else {
         console.log('test3')
+        console.log(currentVal)
+        console.log(value)
+        console.log(value2)
+        console.log(operator)
     }
 };
 
@@ -171,10 +181,12 @@ function operators(e){
         numSel.forEach(elem => elem.removeEventListener('click', firstVal));
         numSel.forEach(elem => elem.addEventListener('click', nextVal));
         currentVal = 1;
+        console.log('op1')
     //take next value
     } else {
-        operatorCheck(e);
+        console.log('op2')
         evaluate();
+        operatorCheck(e);  
     }
 };
 
